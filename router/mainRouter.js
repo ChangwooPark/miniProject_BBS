@@ -7,12 +7,17 @@ const db_user = require('../model/users.js');
 
 const SALT_ROUNDS = 10;
 
+let prms = {
+    title : "",
+    message : null,
+}
 
 
 // Main Page, if user doesn't have session redirect to login page
 router.get('/', function(req, res){
     if(req.session){
-        res.render('index', {title: "index"});
+        prms.title = "Login Page";
+        res.render('index', {prms: prms});
     } else {
         res.redirect('/login')
     }
@@ -20,12 +25,15 @@ router.get('/', function(req, res){
 
 // Login Page
 router.get('/login', function(req, res) {
-    res.render('login/login', {title: "Login Page"});
+    prms.title = "Login Page"
+    res.render('login/login', {prms: prms});
 })
 
 // Login Page
 router.get('/regist', function(req, res) {
-    res.render('login/regist', {title: "Regist Page"});
+    prms.title = "Regist Page"
+    prms.message = null;
+    res.render('login/regist', {prms: prms});
 })
 
 // regist process
@@ -40,22 +48,39 @@ router.post('/regist', async function(req, res) {
 
         // 확인용 패스워드가 다른경우
         if(password_1 !== password_2){ 
-            res.send({success:200, data:"Password!"})
+            prms.title = "Reigst Page";
+            prms.message = "Please Check Password!";
+            res.render('login/regist', {prms: prms})
+            console.log("Password check error!!")
             loginFlag = false;
-            console.log("Password!")
         }
 
         // 이미 가입된 이메일이 있는경우
-        if(db_user.checkDupEmail(email)){
-            res.send({success:200, data:"Email!"})
-            loginFlag = false;
-            console.log("Email!")
-        }
+        // let mailDupChk = db_user.checkDupEmail(email);
+        // console.log("mailDupChk : " + mailDupChk)
+        // if(mailDupChk){
+        //     prms.title = "Reigst Page";
+        //     prms.message = "Email is already exist!";
+        //     res.render('login/regist', {prms: prms})
+        //     console.log("Email Duplicated")
+        //     loginFlag = false;
+        // }
 
-        if(loginFlag){
+        const isDuplicated = await db_user.checkDupEmail(email);
+
+        if(isDuplicated){ // 이미 가입된 이메일이 있는경우
+            prms.title = "Reigst Page";
+            prms.message = "Email is already exist!";
+            res.render('login/regist', {prms: prms})
+            console.log("Email Duplicated")
+            loginFlag = false;
+        } 
+
+        console.log("loginFlag : " + loginFlag)
+        if(loginFlag == true){
             let hash = await bcrypt.hash(password_1, SALT_ROUNDS);
 
-            let result = db_user.createUser(firstName,lastName,email,hash);
+            let result = await db_user.createUser(firstName,lastName,email,hash);
             console.log("회원가입!")
             res.send({success:200, data:"회원가입 완료"})
         }

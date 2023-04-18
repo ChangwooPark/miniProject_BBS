@@ -8,6 +8,17 @@
             <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">Registration Form</h3>
             <form action="/regist" method="POST">
 
+              <% if(prms.message) {%>
+              <div class="row">
+                <div class="col-md-12 mb-4">
+
+                  <div class="form-outline">
+                    <p style="color: red;"><%= prms.message %></p>
+                  </div>
+
+                </div>
+              </div>
+              <% } %>
               <div class="row">
                 <div class="col-md-12 mb-4">
 
