@@ -4,6 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const db_user = require('../model/users.js');
+const { render } = require('ejs');
 
 const SALT_ROUNDS = 10;
 
@@ -55,19 +56,7 @@ router.post('/regist', async function(req, res) {
             loginFlag = false;
         }
 
-        // 이미 가입된 이메일이 있는경우
-        // let mailDupChk = db_user.checkDupEmail(email);
-        // console.log("mailDupChk : " + mailDupChk)
-        // if(mailDupChk){
-        //     prms.title = "Reigst Page";
-        //     prms.message = "Email is already exist!";
-        //     res.render('login/regist', {prms: prms})
-        //     console.log("Email Duplicated")
-        //     loginFlag = false;
-        // }
-
         const isDuplicated = await db_user.checkDupEmail(email);
-
         if(isDuplicated){ // 이미 가입된 이메일이 있는경우
             prms.title = "Reigst Page";
             prms.message = "Email is already exist!";
@@ -82,12 +71,17 @@ router.post('/regist', async function(req, res) {
 
             let result = await db_user.createUser(firstName,lastName,email,hash);
             console.log("회원가입!")
-            res.send({success:200, data:"회원가입 완료"})
+            res.redirect("/registComplete");
         }
     } catch(e){
         console.log(e);
     }
-    
+})
+
+// regist Complete
+router.get("/registComplete", function(req, res) {
+    prms.title = "Regist Complete"
+    res.render("login/registComplete", {prms, prms})
 })
 
 
