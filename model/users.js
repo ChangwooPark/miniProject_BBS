@@ -33,8 +33,33 @@ const checkDupEmail = async function(email){
     }
 }
 
+// 아이디 중복체크 
+const checkPassword = async function(email){
+    const query = 'SELECT * FROM users WHERE email = ?';
+    const [rows, fields] = await connection.promise().query(query, [email]);
+    if(rows.length > 0) {
+        let email = rows[0].email;
+        let firstName = rows[0].first_name;
+        let lastName = rows[0].last_name;
+        let password = rows[0].password;
+
+        let result = {
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            password: password,
+        }
+        return result;
+    } else {
+        console.log("SELECT Result is empty");
+        return false;
+    }
+}
+
+
 let user = {}
 user.createUser = createUser;
 user.checkDupEmail = checkDupEmail;
+user.checkPassword = checkPassword;
 
 module.exports = user;

@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const ejs = require('ejs'); // ejs모듈
 const expressLayouts = require('express-ejs-layouts'); // ejs 모듈화
+const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 
 // =========================== MidleWare ===========================//
 
@@ -18,6 +20,18 @@ app.use(expressLayouts);
 app.set('layout','layout');
 app.set('layout extractScripts', true);
 
+const MaxAge = 1000 * 60 * 10;
+const sessionObj = {
+    secret: 'kong',
+    resave: true,
+    saveUninitialized: false,
+    store: new MemoryStore({ checkPeriod: MaxAge }),
+    cookie: {
+        MaxAge,
+      },
+};
+  
+app.use(session(sessionObj));
 
 // =========================== Route ===========================//
 

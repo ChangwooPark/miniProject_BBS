@@ -1,6 +1,6 @@
 const express = require('express');
+const app = express();
 const router = express.Router();
-const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const db_user = require('../model/users.js');
@@ -16,7 +16,7 @@ let prms = {
 
 // Main Page, if user doesn't have session redirect to login page
 router.get('/', function(req, res){
-    if(req.session){
+    if(req.session.user_id){
         prms.title = "Login Page";
         res.render('index', {prms: prms});
     } else {
@@ -30,7 +30,26 @@ router.get('/login', function(req, res) {
     res.render('login/login', {prms: prms});
 })
 
-// Login Page
+// Login Process
+router.post('/login', async function(req, res) {
+    let email = req.body.email;
+    let password = req.body.password;
+    let loginOK = false;
+    let result = await db_user.checkPassword(email);
+    console.log("result : " + result.email);
+    if(result){
+        loginOK = await bcrypt.compare(password, result.password); // bcript로 DB 패스워드와 Input 패스워드 비교
+        console.log("loginOK : " + loginOK)
+    }
+    if(loginOK) {
+        req.session.user_id = result.email;
+        req.session.user_firstName = result.firstName;
+        req.session.user_lastName = result.lastName;
+        res.redirect('/main');
+    }
+})
+
+// regist Page
 router.get('/regist', function(req, res) {
     prms.title = "Regist Page"
     prms.message = null;
