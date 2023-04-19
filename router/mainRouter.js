@@ -40,12 +40,18 @@ router.post('/login', async function(req, res) {
     if(result){
         loginOK = await bcrypt.compare(password, result.password); // bcript로 DB 패스워드와 Input 패스워드 비교
         console.log("loginOK : " + loginOK)
-    }
+    } 
+    
     if(loginOK) {
+        // 각종데이터 세션에 저장
         req.session.user_id = result.email;
         req.session.user_firstName = result.firstName;
         req.session.user_lastName = result.lastName;
+        // main Page로 리다이렉트
         res.redirect('/main');
+    } else {
+        prms.message = "Please Check ID and Password"
+        res.render("login/login", {prms: prms})
     }
 })
 
