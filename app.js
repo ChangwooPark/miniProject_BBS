@@ -39,6 +39,9 @@ app.use(session(sessionObj));
 const mainRouter = require('./router/mainRouter')
 app.use('/', mainRouter)
 
+const mainBoardRouter = require('./router/mainBoardRouter');
+app.use('/main',mainBoardRouter);
+
 app.listen(3000, function(req, res) {
     console.log("Server Started");
 })

@@ -47,8 +47,17 @@ router.post('/login', async function(req, res) {
         req.session.user_id = result.email;
         req.session.user_firstName = result.firstName;
         req.session.user_lastName = result.lastName;
+        
+        let lastName = req.session.user_firstName;
+        let firstName = req.session.user_lastName;
+        let fullName = `${lastName} ${firstName}`;
+
+        prms.title = "Main Page"
+        prms.userName = fullName;
+
         // main Page로 리다이렉트
-        res.redirect('/main');
+        // res.redirect('/main');
+        res.render('mainBoard/main', {prms:prms});
     } else {
         prms.message = "Please Check ID and Password"
         res.render("login/login", {prms: prms})
